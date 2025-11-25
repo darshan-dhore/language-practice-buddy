@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Notebook – Language Buddy</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="styleoflanding.css">
+<style>
+  body {
+    font-family: Poppins, sans-serif;
+    background: #0a0e17;
+    color: white;
+    text-align: center;
+    padding: 30px;
+  }
+
+  main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 150px);
+  }
+
+  .box {
+    background: rgba(255,255,255,0.18);
+    padding: 25px;
+    border-radius: 20px;
+    max-width: 600px;
+    width: 100%;
+    backdrop-filter: blur(6px);
+  }
+
+  .note-item {
+    background: rgba(255,255,255,0.20);
+    padding: 12px 50px 12px 12px;
+    border-radius: 10px;
+    margin: 10px 0;
+    position: relative;
+    text-align: left;
+  }
+
+  .delBtn {
+    position: absolute;
+    right: 10px;
+    top: -5%;
+    background: red;
+    touch-action: manipulation; /* Prevents default browser touch actions that might cause dragging */
+    border: none;
+    padding: 8px 12px;
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+  }
+  .delBtn:hover { background: #cc0000; }
+
+  a { color: yellow; }
+
+  button {
+    padding: 12px;
+    margin: 10px;
+    border-radius: 10px;
+    border: none;
+    font-size: 17px;
+    background: linear-gradient(135deg, #8f5eff, #6e3fff);
+    color: white;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  button:hover {
+    background: linear-gradient(135deg, #6e3fff, #8f5eff);
+    transform: scale(1.05);
+  }
+</style>
+</head>
+
+<body>
+
+<!-- NAVIGATION BAR -->
+<div id="topbaroflanding">
+  <div id="nav-left">
+    <img src="icons/owl.jpg" height="35" width="35" alt="Owl Logo">
+    <h3>Language Practice Buddy</h3>
+  </div>
+  <div id="nav-right">
+    <button class="navbtn" onclick="location.href='dashboard.html'">Dashboard</button>
+    <button class="navbtn" onclick="location.href='login.html'">Logout</button>
+  </div>
+</div>
+
+<script>
+const user = JSON.parse(localStorage.getItem("user"));
+if (!user) window.location.href = "login.html";
+</script>
+
+<main>
+  <div class="box">
+    <h1>📒 Your Notebook</h1>
+    <p>Words you saved while learning</p>
+  
+    <button onclick="loadNotebook()">Load Notebook</button>
+  
+    <div id="list"></div>
+  
+  </div>
+</main>
+
+
+<script>
+async function loadNotebook(){
+  const r = await fetch(`http://localhost:3000/api/notebook/${user.id}`);
+  const data = await r.json();
+
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+
+  data.items.forEach(item => {
+    list.innerHTML += `
+      <div class="note-item">
+        <b>${item.en_text}</b> → ${item.tr_text}
+        <button class="delBtn" onclick="deleteNote(${item.id})">🗑</button>
+      </div>
+    `;
+  });
+}
+
+async function deleteNote(id){
+  if (!confirm("Delete this word?")) return;
+
+  const r = await fetch(`http://localhost:3000/api/notebook/delete/${id}`,{
+    method:"DELETE"
+  });
+
+  const data = await r.json();
+
+  if (data.success){
+    alert("✅ Deleted!");
+    loadNotebook();
+  } else {
+    alert("❌ Error deleting");
+  }
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Profile - Language Practice Buddy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #8f5eff;
+      --primary-dark: #6e3fff;
+      --glass: rgba(255,255,255,0.08);
+      --border: rgba(145,108,255,0.18);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #0a0e17;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    /* NAVBAR (same vibe as dashboard) */
+    .profile-header {
+      width: 100%;
+      padding: 12px 25px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255,255,255,0.05);
+      border-bottom: 1px solid rgba(145,108,255,0.3);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .profile-header img {
+      width: 36px;
+    }
+    .profile-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #c7a7ff;
+    }
+    .back-btn {
+      margin-left: auto;
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg,var(--primary),var(--primary-dark));
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: .2s;
+    }
+    .back-btn:hover {
+      transform: scale(1.05);
+    }
+
+    /* MAIN */
+    .profile-main {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 0 20px 40px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.5fr);
+      gap: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .profile-main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* LEFT: Avatar + name + stats */
+    .profile-card {
+      background: var(--glass);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      padding: 22px;
+      text-align: center;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+    }
+
+    .avatar-circle {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      margin: 10px auto 14px;
+      background: radial-gradient(circle at 30% 20%, #ffe27a, #ff9a9e);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 42px;
+      font-weight: 700;
+      box-shadow: 0 0 20px rgba(255,154,158,0.4);
+    }
+
+    .username-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    #usernameDisplay {
+      font-size: 20px;
+      font-weight: 700;
+    }
+    #editNameBtn {
+      font-size: 13px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      cursor: pointer;
+      transition: .2s;
+    }
+    #editNameBtn:hover {
+      background: rgba(255,255,255,0.18);
+    }
+
+    .small-label {
+      font-size: 13px;
+      opacity: 0.8;
+      margin-bottom: 16px;
+    }
+
+    .profile-stats {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 10px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .stat-pill {
+      min-width: 90px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(9,18,40,0.7);
+      border: 1px solid rgba(145,108,255,0.25);
+      text-align: center;
+      font-size: 14px;
+    }
+    .stat-pill span {
+      display: block;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    /* RIGHT: Badges */
+    .badge-card {
+      background: var(--glass);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      padding: 22px 20px 18px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+    }
+
+    .badge-title-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .badge-title-row h2 {
+      font-size: 20px;
+      color: #e4d4ff;
+    }
+    .badge-title-row span {
+      font-size: 13px;
+      opacity: 0.85;
+    }
+
+    .badges-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    .badge {
+      border-radius: 18px;
+      padding: 10px 10px 12px;
+      background: rgba(10,14,30,0.85);
+      border: 1px dashed rgba(255,255,255,0.15);
+      text-align: center;
+      font-size: 13px;
+      position: relative;
+      overflow: hidden;
+      transition: .25s;
+    }
+
+    .badge-icon {
+      font-size: 26px;
+      margin-bottom: 4px;
+    }
+    .badge-name {
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .badge-cond {
+      font-size: 11px;
+      opacity: 0.9;
+    }
+
+    .badge.locked {
+      opacity: 0.45;
+      filter: grayscale(0.5);
+    }
+    .badge.unlocked {
+      opacity: 1;
+      filter: none;
+      border-style: solid;
+      box-shadow: 0 0 15px rgba(145,108,255,0.35);
+      background: radial-gradient(circle at top, rgba(255,255,255,0.09), rgba(10,14,30,0.9));
+    }
+    .badge.unlocked::before {
+      content: "UNLOCKED";
+      position: absolute;
+      top: 6px;
+      left: 8px;
+      font-size: 9px;
+      letter-spacing: 1px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(144,238,144,0.2);
+      border: 1px solid rgba(0,255,127,0.7);
+      color: #b4ffda;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header class="profile-header">
+    <img src="icons/owl.jpg" alt="Logo">
+    <span class="profile-title">Language Practice Buddy · Profile</span>
+    <button class="back-btn" onclick="location.href='dashboard.html'">← Back to Dashboard</button>
+  </header>
+
+  <!-- MAIN -->
+  <main class="profile-main">
+
+    <!-- LEFT: Avatar + info -->
+    <section class="profile-card">
+      <div class="avatar-circle" id="avatarInitial">U</div>
+
+      <div class="username-row">
+        <span id="usernameDisplay">User</span>
+        <button id="editNameBtn">✏️ Edit</button>
+      </div>
+
+      <p class="small-label">Keep your streak alive and earn cute badges!</p>
+
+      <div class="profile-stats">
+        <div class="stat-pill">
+          XP
+          <span id="statXp">0</span>
+        </div>
+        <div class="stat-pill">
+          Hearts
+          <span id="statHearts">0</span>
+        </div>
+        <div class="stat-pill">
+          Streak
+          <span id="statStreak">0</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: Badges -->
+    <section class="badge-card">
+      <div class="badge-title-row">
+        <h2>Badges</h2>
+        <span id="badgeSummary">0 / 0 unlocked</span>
+      </div>
+
+      <div class="badges-grid">
+        <!-- Streak badges (cute cartoon style) -->
+        <div class="badge" data-min-streak="1">
+          <div class="badge-icon">🐣</div>
+          <div class="badge-name">Baby Owl</div>
+          <div class="badge-cond">Get a 1-day streak</div>
+        </div>
+
+        <div class="badge" data-min-streak="3">
+          <div class="badge-icon">🌱</div>
+          <div class="badge-name">Growing Learner</div>
+          <div class="badge-cond">3-day streak</div>
+        </div>
+
+        <div class="badge" data-min-streak="7">
+          <div class="badge-icon">🛡️</div>
+          <div class="badge-name">Weekly Warrior</div>
+          <div class="badge-cond">7-day streak</div>
+        </div>
+
+        <div class="badge" data-min-streak="14">
+          <div class="badge-icon">🦉</div>
+          <div class="badge-name">Owl Guardian</div>
+          <div class="badge-cond">14-day streak</div>
+        </div>
+
+        <div class="badge" data-min-streak="30">
+          <div class="badge-icon">👑</div>
+          <div class="badge-name">Language Legend</div>
+          <div class="badge-cond">30-day streak</div>
+        </div>
+
+        <!-- XP-based badges -->
+        <div class="badge" data-min-xp="500">
+          <div class="badge-icon">⭐</div>
+          <div class="badge-name">XP Explorer</div>
+          <div class="badge-cond">Earn 500 XP</div>
+        </div>
+
+        <div class="badge" data-min-xp="1000">
+          <div class="badge-icon">💎</div>
+          <div class="badge-name">Crystal Brain</div>
+          <div class="badge-cond">Earn 1000 XP</div>
+        </div>
+
+        <div class="badge" data-min-xp="2500">
+          <div class="badge-icon">🚀</div>
+          <div class="badge-name">Rocket Linguist</div>
+          <div class="badge-cond">Earn 2500 XP</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // Load user from localStorage
+    const user = JSON.parse(localStorage.getItem("user")) || {
+      username: "User",
+      xp: 0,
+      hearts: 0,
+      streak: 0,
+      language: "es"
+    };
+
+    // Fill basic info
+    const nameSpan = document.getElementById("usernameDisplay");
+    const avatarInitial = document.getElementById("avatarInitial");
+    const xpSpan = document.getElementById("statXp");
+    const heartsSpan = document.getElementById("statHearts");
+    const streakSpan = document.getElementById("statStreak");
+
+    nameSpan.textContent = user.username || "User";
+    avatarInitial.textContent = (user.username || "U").charAt(0).toUpperCase();
+    xpSpan.textContent = user.xp ?? 0;
+    heartsSpan.textContent = user.hearts ?? 0;
+    streakSpan.textContent = user.streak ?? 0;
+
+    // Edit name
+    document.getElementById("editNameBtn").addEventListener("click", () => {
+      const newName = prompt("Enter your display name:", user.username || "User");
+      if (!newName) return;
+      user.username = newName.trim();
+      localStorage.setItem("user", JSON.stringify(user));
+      nameSpan.textContent = user.username;
+      avatarInitial.textContent = user.username.charAt(0).toUpperCase();
+      alert("Name updated!");
+    });
+
+    // Badge unlock logic (cute cartoon style)
+    const badges = document.querySelectorAll(".badge");
+    let unlockedCount = 0;
+
+    badges.forEach(badge => {
+      const minStreak = badge.dataset.minStreak ? Number(badge.dataset.minStreak) : null;
+      const minXp = badge.dataset.minXp ? Number(badge.dataset.minXp) : null;
+
+      let unlocked = false;
+      if (minStreak !== null && (user.streak || 0) >= minStreak) unlocked = true;
+      if (minXp !== null && (user.xp || 0) >= minXp) unlocked = true;
+
+      if (unlocked) {
+        badge.classList.add("unlocked");
+        badge.classList.remove("locked");
+        unlockedCount++;
+      } else {
+        badge.classList.add("locked");
+      }
+    });
+
+    document.getElementById("badgeSummary").textContent =
+      `${unlockedCount} / ${badges.length} unlocked`;
+  </script>
+
+</body>
+</html>

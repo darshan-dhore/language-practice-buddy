@@ -1,0 +1,320 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Lesson – Language Practice Buddy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styleoflanding.css">
+  <style>
+    /* Lesson-specific styles */
+    .lesson-main {
+      max-width: 1000px;
+      margin: 48px auto 0 auto;
+      padding: 0 16px 32px 16px;
+    }
+    .lesson-card {
+      background: #101624;
+      border-radius: 22px;
+      box-shadow: 0 0 22px rgba(155,106,255,0.13);
+      padding: 50px 36px 36px 36px;
+      margin-top: 48px;
+      color: #fff;
+      text-align: center;
+      position: relative;
+    }
+    .lesson-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 18px 24px;
+      margin-bottom: 18px;
+      box-shadow: 0 2px 8px rgba(145,108,255,0.08);
+    }
+    .lesson-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #c7a7ff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .lesson-stats {
+      display: flex;
+      gap: 18px;
+      font-size: 1rem;
+    }
+    .lesson-badge {
+      padding: 6px 12px;
+      border-radius: 10px;
+      background: #181c2a;
+      color: #c7a7ff;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    .lesson-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 28px;
+    }
+    .lesson-opt {
+      padding: 24px;
+      border: none;
+      border-radius: 12px;
+      background: #232a3d;
+      color: #fff;
+      font-size: 1.08rem;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s, transform 0.18s;
+      font-family: inherit;
+    }
+    .lesson-opt:hover {
+      background: #8f5eff;
+      color: #fff;
+      transform: scale(1.04);
+    }
+    .lesson-actions {
+      margin-top: 22px;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .lesson-pill {
+      padding: 12px 18px;
+      border: none;
+      border-radius: 999px;
+      background: #8f5eff;
+      color: #fff;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.18s, transform 0.18s;
+      font-family: inherit;
+    }
+    .lesson-pill.secondary {
+      background: #232a3d;
+      color: #c7a7ff;
+    }
+    .lesson-pill:hover {
+      background: #6e3fff;
+      transform: scale(1.07);
+    }
+    .lesson-back {
+      color: #c7a7ff;
+      text-decoration: underline;
+      font-size: 1rem;
+      margin-left: 10px;
+    }
+    @media (max-width: 600px) {
+      .lesson-main { padding: 0 4px; }
+      .lesson-card { padding: 18px 6px; }
+      .lesson-header { flex-direction: column; gap: 10px; padding: 12px 8px; }
+      .lesson-title { font-size: 1.1rem; }
+      .lesson-stats { font-size: 0.95rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVIGATION BAR -->
+<div id="topbaroflanding">
+  <div id="nav-left">
+    <img src="icons/owl.jpg" height="35" width="35" alt="Owl Logo">
+    <h3>Language Practice Buddy</h3>
+  </div>
+  <div id="nav-right">
+    <button class="navbtn" onclick="location.href='dashboard.html'">Dashboard</button>
+    <button class="navbtn" onclick="location.href='login.html'">Logout</button>
+  </div>
+</div>
+
+<main class="lesson-main">
+  <div class="lesson-card">
+    <div class="lesson-header">
+      <div class="lesson-title">📘 Lesson</div>
+      <div class="lesson-stats">
+        <span id="xp" class="lesson-badge">⭐ XP: 0</span>
+        <span id="hearts" class="lesson-badge">❤️ Hearts: 5</span>
+        <span id="lang" class="lesson-badge">🌐 Lang: es</span>
+      </div>
+    </div>
+    <h2 id="prompt">Loading…</h2>
+    <div class="lesson-actions">
+      <button class="lesson-pill secondary" id="listenBtn">🔊 Listen</button>
+      <button class="lesson-pill secondary" id="swapBtn">⇄ Show Target</button>
+    </div>
+    <div class="lesson-options" id="options"></div>
+    <div class="lesson-actions">
+      <button class="lesson-pill" id="nextBtn" style="display:none">Next</button>
+      
+    </div>
+  </div>
+</main>
+
+<script>
+/* ---- Auth guard ---- */
+const user = JSON.parse(localStorage.getItem("user"));
+if (!user) window.location.href = "login.html";
+
+/* ---- UI refs ---- */
+const xpEl = document.getElementById("xp");
+const heartsEl = document.getElementById("hearts");
+const langEl = document.getElementById("lang");
+const promptEl = document.getElementById("prompt");
+const optionsEl = document.getElementById("options");
+const nextBtn = document.getElementById("nextBtn");
+const listenBtn = document.getElementById("listenBtn");
+const swapBtn = document.getElementById("swapBtn");
+
+/* ---- hydrate header ---- */
+let xp = user.xp ?? 0;
+let hearts = user.hearts ?? 5;
+const targetLang = (user.language || "es").toLowerCase();
+xpEl.textContent = `⭐ XP: ${xp}`;
+heartsEl.textContent = `❤️ Hearts: ${hearts}`;
+langEl.textContent = `🌐 Lang: ${targetLang}`;
+
+/* ---- lesson generator ---- */
+/** A small pool of common English phrases + templates to generate unlimited combos */
+const nouns = ["apple","book","water","music","coffee","dog","friend","school","train","hotel","ticket","money","breakfast","dinner","phone","computer"];
+const verbs = ["like","want","have","need","eat","drink","see","know","learn","speak","buy","read","write","find","visit"];
+const templates = [
+  "Hello",
+  "Thank you",
+  "Good morning",
+  "Good night",
+  "I {verb} {noun}",
+  "Do you {verb} {noun}?",
+  "I want to {verb}",
+  "Where is the {noun}?",
+  "This is my {noun}",
+  "I am learning {noun}",
+  "Can you help me?",
+  "How much is this?",
+  "I don't understand",
+  "See you later",
+];
+
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function synthEN(){
+  // build a random English phrase
+  let t = pick(templates);
+  t = t.replace("{verb}", pick(verbs)).replace("{noun}", pick(nouns));
+  return t;
+}
+
+async function translate(text, to){
+  const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${encodeURIComponent(to)}`;
+  const r = await fetch(url);
+  const j = await r.json();
+  return (j?.responseData?.translatedText || "").trim();
+}
+
+function speak(text, langCode){
+  try{
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = langCode;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+/* state for current round */
+let current = { en:"", tr:"", choices:[], showTarget:false };
+
+async function newRound(){
+  nextBtn.style.display = "none";
+  optionsEl.innerHTML = "";
+  current.showTarget = false;
+
+  const en = synthEN();
+  const tr = await translate(en, targetLang);
+
+  // Generate distractors by translating other random phrases
+  const distractors = [];
+  while (distractors.length < 3){
+    const fake = await translate(synthEN(), targetLang);
+    if (fake && fake !== tr && !distractors.includes(fake)){
+      distractors.push(fake);
+    }
+  }
+  const choices = [tr, ...distractors].sort(()=>Math.random()-0.5);
+
+  current = { en, tr, choices, showTarget:false };
+
+  promptEl.textContent = `Translate: ${en}`;
+  renderChoices();
+}
+
+function renderChoices(){
+  optionsEl.innerHTML = "";
+  current.choices.forEach(choice=>{
+    const btn = document.createElement("button");
+    btn.className = "opt";
+    btn.textContent = choice;
+    btn.onclick = ()=>check(choice);
+    optionsEl.appendChild(btn);
+  });
+}
+
+async function persistProgress(){
+  await fetch("http://localhost:3000/api/update-progress",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json"},
+    body: JSON.stringify({ username:user.username, xp, hearts })
+  });
+  user.xp = xp; user.hearts = hearts;
+  localStorage.setItem("user", JSON.stringify(user));
+  xpEl.textContent = `⭐ XP: ${xp}`;
+  heartsEl.textContent = `❤️ Hearts: ${hearts}`;
+}
+
+async function check(selected){
+  const allButtons = [...document.querySelectorAll("button.opt")];
+  allButtons.forEach(b=>b.disabled=true);
+
+  if (selected === current.tr){
+    xp += 10;
+    speak(selected, targetLang);
+    alert("✅ Correct! +10 XP");
+  }else{
+    hearts = Math.max(0, hearts-1);
+    alert(`❌ Wrong! -1 heart\n\nCorrect answer:\n${current.tr}`);
+    // log mistake
+    try{
+      await fetch("http://localhost:3000/api/mistake",{
+        method:"POST",
+        headers:{ "Content-Type":"application/json"},
+        body: JSON.stringify({ user_id:user.id, en: current.en, tr: current.tr })
+      });
+    }catch(e){}
+  }
+  await persistProgress();
+
+  if (hearts === 0){
+    return;
+  }
+  nextBtn.style.display = "inline-block";
+}
+
+listenBtn.onclick = ()=> {
+  const toSpeak = current.showTarget ? current.tr : current.en;
+  const langCode = current.showTarget ? targetLang : "en-US";
+  speak(toSpeak, langCode);
+};
+
+swapBtn.onclick = ()=>{
+  current.showTarget = !current.showTarget;
+  promptEl.textContent = current.showTarget ? `Say/understand: ${current.tr}` : `Translate: ${current.en}`;
+};
+
+nextBtn.onclick = newRound;
+
+/* start! unlimited rounds */
+newRound();
+</script>
+</body>
+</html>

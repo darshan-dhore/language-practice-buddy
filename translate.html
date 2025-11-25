@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Translate – Language Buddy</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="styleoflanding.css">
+<style>
+  body {
+    font-family: Poppins, sans-serif;
+    background: #0a0e17;
+    color: white;
+    text-align: center;
+    padding: 30px;
+  }
+  main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 150px); /* Adjust based on nav height and padding */
+  }
+  .box {
+    background: rgba(255,255,255,0.18);
+    padding: 25px;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 600px;
+    backdrop-filter: blur(6px);
+  }
+  input, button {
+    padding: 12px;
+    margin: 10px;
+    border-radius: 10px;
+    border: none;
+    font-size: 17px;
+  }
+  button {
+    background: linear-gradient(135deg, #8f5eff, #6e3fff);
+    color: white;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  button:hover {
+    background: linear-gradient(135deg, #6e3fff, #8f5eff);
+    transform: scale(1.05);
+  }
+  a { color: yellow; }
+  .back-btn {
+    padding: 12px 18px;
+    border: none;
+    border-radius: 999px;
+    background: #232a3d;
+    color: #c7a7ff;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.18s;
+    font-family: inherit;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 20px;
+  }
+  .back-btn:hover { transform: scale(1.07); background: #6e3fff; color: #fff; }
+</style>
+</head>
+
+<body>
+
+<!-- NAVIGATION BAR -->
+<div id="topbaroflanding">
+  <div id="nav-left">
+    <img src="icons/owl.jpg" height="35" width="35" alt="Owl Logo">
+    <h3>Language Practice Buddy</h3>
+  </div>
+  <div id="nav-right">
+    <button class="navbtn" onclick="location.href='dashboard.html'">Dashboard</button>
+    <button class="navbtn" onclick="location.href='login.html'">Logout</button>
+  </div>
+</div>
+
+<script>
+const user = JSON.parse(localStorage.getItem("user"));
+if (!user) window.location.href = "login.html";
+</script>
+
+<main>
+  <div class="box">
+    <h1>🌍 Translate Words</h1>
+    <p>Language: <b id="lang"></b></p>
+  
+    <input id="wordInput" placeholder="Enter an English word...">
+    <button onclick="translateWord()">Translate</button>
+  
+    <h2 id="result"></h2>
+    <button onclick="listenTranslation()">🔊 Listen</button>
+  </div>
+</main>
+
+<script>
+document.getElementById("lang").textContent = user.language;
+
+let currentTranslation = "";
+
+async function translateWord(){
+  const word = document.getElementById("wordInput").value.trim();
+  if (!word) return alert("Enter a word!");
+
+  const url = `https://api.mymemory.translated.net/get?q=${word}&langpair=en|${user.language}`;
+  const r = await fetch(url);
+  const data = await r.json();
+
+  currentTranslation = data.responseData.translatedText;
+  document.getElementById("result").innerHTML =
+    `Translation: <b>${currentTranslation}</b>`;
+
+  // ✅ Save to notebook
+  fetch("http://localhost:3000/api/notebook/add", {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({
+      user_id: user.id,
+      en: word,
+      tr: currentTranslation
+    })
+  });
+}
+
+function listenTranslation(){
+  if (!currentTranslation) return alert("Translate first!");
+  const u = new SpeechSynthesisUtterance(currentTranslation);
+  u.lang = user.language;
+  speechSynthesis.speak(u);
+}
+</script>
+
+</body>
+</html>
